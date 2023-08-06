@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+
+# need both yad and jq for this command to run
+#
+if [ ! $(which yad) ]; then
+  echo "you need yad: do sudo apt install yad"
+  exit 1
+fi
+
+if [ ! $(which jq) ]; then
+  echo "you need jq: do sudo apt install jq"
+  exit 1
+fi
+
+url='https://api.pota.app/spot/activator'
+
+curl -s $url > spots.json 
+n=$(cat spots.json | jq '. [] | {reference: .reference, activator: .activator, freq: .frequency}' | jq '. .reference' | wc -l)
+let n=$(($n - 1))
+
+rm -f temp.out.txt
+
+for s in $(seq 0 $n); do
+  ref=$(cat spots.json | jq ". [$s] | .reference")
+  activator=$(cat spots.json | jq ". [$s] | .activator")
+  freq=$(cat spots.json | jq ". [${s}] | .frequency")
+  loc=$(cat spots.json | jq ". [${s}] | .locationDesc")
+  grid=$(cat spots.json | jq ". [${s}] | .grid6")
+  mode=$(cat spots.json | jq ". [${s}] | .mode")
+
+  if [ "${mode}" = '""' ]; then
+    mode='n/a'
+  fi
+  
+  # echo "strlen ${freq} ==> ${#freq}"
+
+  if [ ${#freq} = 6 ]; then        # even though I see 4 chars, #freq reports 6
+    freq="0${freq}"
+  fi
+
+  printf "%-10s %-12s %-12s %-8s %-8s %s 16\n" ${ref} ${activator} ${freq} ${mode} ${loc} ${grid} | tr -d '"' >> temp.out.txt
+done
+
+gw=$(xdpyinfo | grep dimensions | awk '{print $2}' | tr 'x' ' ' | awk '{print $1}')
+gh=$(xdpyinfo | grep dimensions | awk '{print $2}' | tr 'x' ' ' | awk '{print $2}')
+let h=$(($gh - 100))
+let w=$(($gw - 100))
+
+txt=( `cat temp.out.txt` )
+yad --list --width ${w} --height ${h} --escape-ok --center --column Park --column Activator --column Frequency --column Mode --column Location --column Grid --column @font@ ${txt[@]} > /dev/null 2>&1
+
+rm -f temp.out.txt
+rm -f spots.json
