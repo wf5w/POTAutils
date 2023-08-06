@@ -45,3 +45,20 @@ Japan
 $ pcc -n japa | awk 'NR == 1'
 JA
 ```
+
+# yspots
+
+## POTA spots
+
+This short program uses jq and yad. So make sure you have these installed.
+
+This program gets the current activator spots in POTA.
+
+# spots
+
+This is a version of POTA spots that does NOT use yad. it uses jq. 
+
+It outputs to:
+* stdout
+* notify-send
+
