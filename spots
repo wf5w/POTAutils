@@ -2,25 +2,33 @@
 
 url='https://api.pota.app/spot/activator'
 
-curl -s $url > spots.json 
-n=$(cat spots.json | jq '. [] | {reference: .reference, activator: .activator, freq: .frequency}' | jq '. .reference' | wc -l)
+curl -s $url > temp.json 
+n=$(cat temp.json | jq '. [] | {reference: .reference, activator: .activator, freq: .frequency}' | jq '. .reference' | wc -l)
 let n=$(($n - 1))
 
-rm -f temp.out.txt
-printf "%-8s %-10s %-10s %-6s %s\n" Park Call Freq Loc Grid > temp.out.txt
+jq 'sort_by([(.mode), (.frequency|tonumber)])' temp.json > spots.json
+rm -f temp.json temp.out.txt 
 
+rows="%-10s %-20s %-5s %-12s %-10s %s\n"
+
+echo "Park\tCall\tMode\tFreq\tLoc\tGrid" > temp.out.txt
 for s in $(seq 0 $n); do
   ref=$(cat spots.json | jq ". [$s] | .reference")
   activator=$(cat spots.json | jq ". [$s] | .activator")
   freq=$(cat spots.json | jq ". [${s}] | .frequency")
+  mode=$(cat spots.json | jq ". [${s}] | .mode")
   loc=$(cat spots.json | jq ". [${s}] | .locationDesc")
   grid=$(cat spots.json | jq ". [${s}] | .grid6")
-  printf "%-10s %-12s %-12s %-8s %s\n" ${ref} ${activator} ${freq} ${loc} ${grid} | tr -d '"' >> temp.out.txt
+  #echo "${ref}\t\t${activator}\t\t${mode}\t${freq}\t${loc}\t${grid}" | tr -d '"' >> temp.out.txt
+  printf "$rows" ${ref} ${activator} ${mode} ${freq} ${loc} ${grid} | tr -d '"' >> temp.out.txt
 done
 
 txt=$(cat temp.out.txt)
-echo "$txt"
 notify-send -u critical -t 0 'POTA spots:' "${txt}"
+
+rm -f temp.json temp.out.txt temp.out.data.txt
+rm -f spots.json
+
 
 #yad --list --column=Park --column=Activator --column=Frequency < ./temp.out.txt
 
