@@ -14,11 +14,13 @@ fi
 
 url='https://api.pota.app/spot/activator'
 
-curl -s $url > spots.json 
-n=$(cat spots.json | jq '. [] | {reference: .reference, activator: .activator, freq: .frequency}' | jq '. .reference' | wc -l)
+curl -s $url > temp.json 
+n=$(cat temp.json | jq '. [] | {reference: .reference, activator: .activator, freq: .frequency}' | jq '. .reference' | wc -l)
 let n=$(($n - 1))
 
-rm -f temp.out.txt
+jq 'sort_by([(.mode), (.frequency|tonumber)])' temp.json > spots.json
+
+rm -f temp.json temp.out.txt
 
 for s in $(seq 0 $n); do
   ref=$(cat spots.json | jq ". [$s] | .reference")
@@ -51,3 +53,4 @@ yad --list --width ${w} --height ${h} --escape-ok --center --column Park --colum
 
 rm -f temp.out.txt
 rm -f spots.json
+
