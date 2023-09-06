@@ -18,6 +18,18 @@ else
   vtype=right
 fi
 
+function do_select() {
+  line=${@}
+  echo "$1ine" | sed 's/FALSE//g2' | grep -q -i "false"
+  err=$?
+
+  if [ $err -ne 0 ]; then
+    echo "$line" | sed 's/^TRUE //' >> $HOME/potaspot.selections
+  fi
+}
+
+export -f do_select
+
 url='https://api.pota.app/spot/activator'
 
 curl -s $url > temp.json 
@@ -46,7 +58,16 @@ for s in $(seq 0 $n); do
     freq="0${freq}"
   fi
 
-  printf "FALSE %-10s %-12s %-12s %-8s %-8s %s 16\n" ${ref} ${activator} ${freq} ${mode} ${loc:0:10} ${grid} | tr -d '"' >> temp.out.txt
+  sel='FALSE'
+  if [ -f "$HOME/potaspot.selections" ]; then
+    v1=$(echo ${ref} | tr -d '"')
+    v2=$(echo ${activator} | tr -d '"')
+    if grep -q -i "${v1}.*${v2}" $HOME/potaspot.selections; then
+      sel='TRUE'
+    fi
+  fi
+
+  printf "%-s %-10s %-12s %-12s %-8s %-8s %s 16\n" ${sel} ${ref} ${activator} ${freq} ${mode} ${loc:0:10} ${grid} | tr -d '"' >> temp.out.txt
 done
 
 gw=$(xdpyinfo | grep dimensions | awk '{print $2}' | tr 'x' ' ' | awk '{print $1}')
@@ -57,10 +78,14 @@ let w=$(($gw - 100))
 txt=( `cat temp.out.txt` )
 
 if [ $vtype = "full" ]; then
-  yad --list --checklist --print-all --width ${w} --height ${h} --escape-ok --center --column Done --column Park --column Activator --column Frequency --column Mode --column Location --column Grid --column @font@ ${txt[@]} > /dev/null 2>&1
+  yad --list --checklist --select-action 'bash -c "do_select %s"' --width ${w} --height ${h} --button="Clear saved Pota Spots":"rm -f $HOME/potaspot.selections" --button="Ok" --buttons-layout=center --escape-ok --center --column Done --column Park --column Activator --column Frequency --column Mode --column Location --column Grid --column @font@ ${txt[@]} > /dev/null 2>&1
 else
-  yad --list --checklist --print-all --geometry='739x980--10+-8' --escape-ok --center --column Done --column Park --column Activator --column Frequency --column Mode --column Location --column Grid --column @font@ ${txt[@]} > /dev/null 2>&1
+  yad --list --checklist --select-action 'bash -c "do_select %s"' --geometry='739x980--10+-8' --button="Clear saved Pota Spots":"rm -f $HOME/potaspot.selections" --button="Ok" --buttons-layout=center --escape-ok --center --column Done --column Park --column Activator --column Frequency --column Mode --column Location --column Grid --column @font@ ${txt[@]} > /dev/null 2>&1
 fi
+
+[ -f "$HOME/potaspot.selections" ] && (echo -e "you chose ( in ~/potaspot.selections ):\n"; cat $HOME/potaspot.selections)
 
 rm -f temp.out.txt
 rm -f spots.json
+
+unset -f do_select
