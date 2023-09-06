@@ -54,6 +54,14 @@ This short program uses jq and yad. So make sure you have these installed.
 
 This program gets the current activator spots in POTA.
 
+$ yspots - will be short width on the right of the screen
+$ yspots -f will be a centered almost full width of the screen
+
+yspots now has a checkbox for each entry. If you check the boxes it will be saved to $HOME/potaspots.selections 
+
+when you invoke yspots again, those spots if they still exist will be selected again. This is so you can know which ones you have contacted. When you are completely done, you can use the clear button at the bottom to clear those selections.
+
+
 # spots
 
 This is a version of POTA spots that does NOT use yad. it uses jq. 
