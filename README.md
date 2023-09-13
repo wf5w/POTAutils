@@ -74,12 +74,14 @@ This will limit your spots to the band in question.
 
 This will limit your spots to the mode in question.
 
+```
 $ yspots -h
 $ yspots -b 20m
 $ yspots -b 20m -m ssb
 $ yspots -b 20
 $ yspots -m ft8
 $ yspots -m ft8 -b 20
+```
 
 # spots
 
