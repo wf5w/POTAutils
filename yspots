@@ -12,11 +12,29 @@ if [ ! $(which jq) ]; then
   exit 1
 fi
 
-if [ "$1" = "-f" ]; then
-  vtype=full
-else
-  vtype=right
-fi
+# -b band, -f full screen, -m mode
+vtype=right
+band=
+mode=
+while getopts ':b:m:fh' OPTION; do
+  case "$OPTION" in
+    f)
+      vtype=full 
+      ;;
+    b)
+      band=$(echo "$OPTARG" | sed 's/m//g' | sed 's/c//g')
+      ;;
+    m)
+      mode=$(echo "$OPTARG" | tr 'a-z' 'A-Z')
+      ;;
+    h|?)
+      echo "Usage: $(basename $0) [-f] [-b band] [-m mode] [-h|-?]"
+      exit 1
+      ;;
+  esac
+done
+
+shift "$(($OPTIND -1))"
 
 function do_select() {
   line=${@}
@@ -30,13 +48,47 @@ function do_select() {
 
 export -f do_select
 
+function b2fr {
+  f="$1"
+
+  case $1 in
+  160) range1=1800; range2=2000 ;;
+  80)  range1=3525; range2=4000 ;;
+  40)  range1=7000; range2=7300 ;;
+  30)  range1=10100; range2=10150 ;;
+  20)  range1=14000; range2=14350 ;;
+  17)  range1=18068; range2=18168 ;;
+  15)  range1=21000; range2=21450 ;;
+  12)  range1=24890; range2=24990 ;; 
+  10)  range1=28000; range2=29700 ;;
+  6)   range1=50000; range2=54000 ;;
+  2)   range1=144000; range2=148000 ;;
+  440) range1=420000; range2=450000 ;;
+  *) range1=0; range2=0 ;;
+  esac
+}
+
 url='https://api.pota.app/spot/activator'
 
 curl -s $url > temp.json 
-n=$(cat temp.json | jq '. [] | {reference: .reference, activatoper: .activator, freq: .frequency}' | jq '. .reference' | wc -l)
-let n=$(($n - 1))
 
-jq 'sort_by([(.mode), (.frequency|tonumber)])' temp.json > spots.json
+jq 'sort_by([(.mode), (.frequency|tonumber)])' temp.json > temp1.json
+
+if [ ! -z $mode ]; then
+  jq "map(select(.mode == \"$mode\"))" temp1.json > temp.json
+else
+  mv temp1.json temp.json
+fi
+
+if [ ! -z $band ]; then
+  b2fr $band
+  jq "map(select((.frequency >= \"$range1\") and (.frequency <= \"$range2\")))" temp.json > spots.json
+else
+  mv temp.json spots.json
+fi
+
+n=$(cat spots.json | jq '. [] | {reference: .reference, activatoper: .activator, freq: .frequency}' | jq '. .reference' | wc -l)
+let n=$(($n - 1))
 
 rm -f temp.json temp.out.txt
 
@@ -87,5 +139,4 @@ fi
 
 rm -f temp.out.txt
 rm -f spots.json
-
 unset -f do_select
