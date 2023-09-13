@@ -62,12 +62,31 @@ yspots now has a checkbox for each entry. If you check the boxes it will be save
 
 when you invoke yspots again, those spots if they still exist will be selected again. This is so you can know which ones you have contacted. When you are completely done, you can use the clear button at the bottom to clear those selections.
 
+Update: 2023-09-13
+
+yspots now has 2 new command line options
+
+-b band
+
+This will limit your spots to the band in question.
+
+-m mode
+
+This will limit your spots to the mode in question.
+
+$ yspots -h
+$ yspots -b 20m
+$ yspots -b 20m -m ssb
+$ yspots -b 20
+$ yspots -m ft8
+$ yspots -m ft8 -b 20
 
 # spots
 
 This is a version of POTA spots that does NOT use yad. it uses jq. 
+spots and yspots are separate files. They are not guaranteed to be in sync.
 
 It outputs to:
 * stdout
 * notify-send
-
+  
