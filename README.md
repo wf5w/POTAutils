@@ -46,9 +46,9 @@ $ pcc -n japa | awk 'NR == 1'
 JA
 ```
 
-# yspots
+# POTA Spotting
 
-## POTA spots
+## yspots
 
 This short program uses jq and yad. So make sure you have these installed.
 
@@ -88,10 +88,10 @@ $ yspots -m ft8
 $ yspots -m ft8 -b 20
 ```
 
-# spots
+## spots
 
 This is a version of POTA spots that does NOT use yad. it uses jq. 
-spots and yspots are separate files. They are not guaranteed to be in sync.
+spots and yspots are separate files. spots has options -b and -m, like its counterpart yspots.
 
 It outputs to:
 * stdout
