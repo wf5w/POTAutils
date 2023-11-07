@@ -8,7 +8,7 @@
 #
 # required: fzf is required. install doing $ sudo apt install fzf
 #
-# required: download the csv file for all of united states from the pota website,
+# required: download the POTA csv file for all of united states from the pota website,
 #           and put it in your top level directory
 #
 #           on https://pota.app
@@ -19,7 +19,7 @@
 #           click the download button and choose the CSV option
 #           you should get a 'United States of America (K).csv' file in your downloads directory
 #
-#           do this: $ cd Downloads; mv United\ States\ of\ America\ \(K\).csv ../POTA_UnitedStatesOfAmerica.csv
+#           do this: $ cd Downloads; mv United\ States\ of\ America\ \(K\).csv ~/POTA_UnitedStatesOfAmerica.csv
 #
 #
 # usage:
