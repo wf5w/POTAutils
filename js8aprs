@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+
+# js8aprs: build string necessary to do different aprs modes in js8call
+#
+# optional: if you don't want to have to always put in the callsign argument,
+#           then do this: export CALLSIGN=WF5W
+#           in your .bashrc file.
+#
+# required: fzf is required. install doing $ sudo apt install fzf
+#
+# required: download the csv file for all of united states from the pota website,
+#           and put it in your top level directory
+#
+#           on https://pota.app
+#           menu item: Park List
+#
+#           select  United States of America (K) 
+#
+#           click the download button and choose the CSV option
+#           you should get a 'United States of America (K).csv' file in your downloads directory
+#
+#           do this: $ cd Downloads; mv United\ States\ of\ America\ \(K\).csv ../POTA_UnitedStatesOfAmerica.csv
+#
+#
+# usage:
+#
+# first the chooser box will come up, choose one of the aprs options you want to do.
+# choose POTAGW if you want to spot your self for POTA
+#
+# then a park chooser will come up, choose your park.
+#
+# then the details box will come up. It should be mostly filled in for you, change it to yours needs
+#
+# a string will come out on the terminal, which you should copy, and paste into js8call
+#
+# enjoy: Jerry F. Davis, WF5W
+#
+ 
+if [ -z $1 ]; then
+  if [[ -z ${CALLSIGN} ]]; then
+    echo usage: js8aprs callsign
+    echo        or set CALLSIGN env variable
+    exit 0
+  else
+    callsign=${CALLSIGN}
+  fi
+else
+    callsign=$1
+fi
+
+callsign=$(echo $callsign | tr 'a-z' 'A-Z')
+
+action=$(yad  --width 300 --entry --title "JS8Call APRS" --center \
+              --image=gnome-shutdown \
+              --button="Switch User:2" \
+              --button="gtk-ok:0" --button="gtk-close:1" \
+              --text "Choose action:" \
+              --entry-text \
+              "POTAGW" "APRS" "SMSGTE" "Email-2" "GRID")
+ret=$?
+
+case $action in
+  POTAGW)  park=$(cat ~/POTA_UnitedStatesOfAmerica.csv | fzf | cut -d',' -f1);
+
+           if [ -z $park ]; then
+             cvalue="$callsign K-xxxx 14074 FT8 10w QRP"
+           else
+             cvalue="$callsign $park 14074 FT8 10w QRP"
+           fi
+    
+           value=$(yad --width 500 --title "APRS Form" --center --form --field="Content" "$cvalue")
+           ;;
+  APRS)    value=$(yad --width 500 --title "APRS Form" --center --form --field="Destination GW" --field="Content") ;;
+  SMSGTE)  value=$(yad --width 300 --center --form --field="CellPhone" --field="Message") ;;
+  Email-2) value=$(yad --width 300 --center --form --field="Email Addr" --field="Message") ;;
+  GRID)    value=$(yad --width 300 --center --form --field="Grid") ;;
+esac
+
+# echo $action $value
+
+# @APRSIS CMD :POTAGW   :WF5W K-0661 14074 FT8 10w QRP {05}
+#
+# Format for SMS:
+# @APRSIS CMD :SMSGTE   :@Phone# Message
+# Format for Email:
+# @APRSIS CMD :EMAIL-2  :EmialAddy Message
+# Format for APRS MEssages:
+# @APRSIS CMD :CALLSIGN :Message
+# Format for Grid:
+# @APRSIS GRID
+
+case $action in
+  POTAGW)  echo "@APRSIS CMD :POTAGW   :$value" | tr -d '|'
+           ;;
+  APRS)    gw=$(echo $value | cut -d'|' -f1);
+           content=$(echo $value | cut -d'|' -f2);
+           printf "@APRSIS CMD :%-9s:%s\n" "$gw" "$content"
+           ;;
+  SMSGTE)  pn=$(echo $value | cut -d'|' -f1);
+           content=$(echo $value | cut -d'|' -f2)
+           echo "@APRSIS CMD :SMSGTE   :@$pn $content"
+           ;;
+  Email-2)  eadr=$(echo $value | cut -d'|' -f1);
+           content=$(echo $value | cut -d'|' -f2)
+           echo "@APRSIS CMD :EMAIL-2  :$eadr $content"
+           ;;
+  GRID)    echo "@APRSIS GRID $value" | tr -d '|' ;;
+esac
+
+
