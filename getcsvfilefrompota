@@ -1,0 +1,54 @@
+#!/usr/bin/env -S bash -l
+
+if [ -z "$1" ]; then
+  echo usage `basename $0` country_prefix >&2
+  exit 0
+fi
+
+which jq > /dev/null
+
+if [ $? == 1 ]; then
+  echo jq must be installed to use this utility >&2
+  exit 1
+fi
+
+# the urlfile api ends in K - for the United States
+# for Canada the prefix is VE
+# for England the prefix is G
+# for Mexico it is XE
+
+PARKPREFIX=$1
+
+csvfile=$(mktemp --suffix=.csv)
+tempjsonfile=$(mktemp --suffix=.json)
+
+urlfile=https://api.pota.app/program/parks/${PARKPREFIX}
+
+#
+# to get specific state: https://api.pota.app/location/parks/US-MS
+#
+#curl -s $urlfile | jq --arg cs "$cs" '.[] | select(.activeCallsign == $cs) | ("activations:", .activations, "unique:", .units, "qsos:", .TotalContacts)' >> $file
+#column -o' ' -c120 $file | tr -d '"'
+# {
+#   "reference": "K-9999",
+#   "name": "Coyote Springs State Fish and Wildlife Area",
+#   "latitude": 45.8426,
+#   "longitude": -119.639,
+#   "grid": "DN05eu",
+#   "locationDesc": "US-OR",
+#   "attempts": 0,
+#   "activations": 0,
+#   "qsos": 0
+# }
+
+#purge of all but a few potacsv files
+
+echo reference,name,latitude,longitude,grid,locationDesc,attempts,activations,qsos > $csvfile
+
+curl -s $urlfile > $tempjsonfile 
+cat $tempjsonfile | jq -r '. | map( [ .reference, .name, .latitude, .longitude, .grid, .locationDesc, .attempts, .activations, .qsos ] | join("|"))' | sed 's/,$//' | sed 's/,/ /g' | tr '|' ',' | tr -d '"' | sed '1d' | sed '$d' | sed 's/^  //' >> $csvfile 
+rm $tempjsonfile
+
+cat $csvfile
+rm $csvfile
+
