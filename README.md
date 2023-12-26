@@ -9,7 +9,7 @@ This simple command uses the JSON country codes API to find and list out a count
 It will also, find it by country name, if so desired.
 
 
-### pcc - POTA country code finder
+### pcc - POTA country code finderhttps://api.pota.app/program/parks/K
 
 **usage: pcc [ country-code | -n country-name ]**
 
@@ -97,3 +97,14 @@ It outputs to:
 * stdout
 * notify-send
   
+## getcsvfilefrompota
+
+This script gets a download of entities from a specific country code to a csvfile you choose.
+
+usage: **getcsvfilefrompota** prefix > csvfilename.csv
+
+to get ALL of USA into one file do the following:
+
+$ **getcsvfilefrompota** K > USA.csv
+
+**NOTE: you need jq to run this utility**
