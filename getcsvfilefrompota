@@ -1,13 +1,11 @@
 #!/usr/bin/env -S bash -l
 
 if [ -z "$1" ]; then
-  echo usage `basename $0` country_prefix >&2
+  echo usage `basename $0` country_prefix or country name >&2
   exit 0
 fi
 
-which jq > /dev/null
-
-if [ $? == 1 ]; then
+if [  ! `which jq` ]; then
   echo jq must be installed to use this utility >&2
   exit 1
 fi
@@ -17,7 +15,7 @@ fi
 # for England the prefix is G
 # for Mexico it is XE
 
-PARKPREFIX=$1
+PARKPREFIX=$(pcc1 $1 | fzf | cut -d' ' -f1)
 
 csvfile=$(mktemp --suffix=.csv)
 tempjsonfile=$(mktemp --suffix=.json)
@@ -41,8 +39,6 @@ urlfile=https://api.pota.app/program/parks/${PARKPREFIX}
 #   "qsos": 0
 # }
 
-#purge of all but a few potacsv files
-
 echo reference,name,latitude,longitude,grid,locationDesc,attempts,activations,qsos > $csvfile
 
 curl -s $urlfile > $tempjsonfile 
@@ -51,4 +47,3 @@ rm $tempjsonfile
 
 cat $csvfile
 rm $csvfile
-
