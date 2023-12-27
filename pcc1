@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+# pcc - POTA country code finder
+#
+# pcc without the -n switch will search for a country code
+# pcc with the -n switch will search by country name
+#
+# all inputs are case insensitive for either search 
+#
+# the output will be 3 lines: country prefix, country name, number of parks in the pota database
+#
+# NOTE: this uses the jq utility.
+
+if [ -z "$1" ]; then
+  echo 'usage: pcc [ country-code | country-name ]'
+  exit 0
+fi
+
+if [ ! $(which jq) ]; then
+  echo "you need jq: do sudo apt install jq"
+  exit 1
+fi
+
+curl -s https://api.pota.app/programs/locations > locations.json
+cat locations.json | jq -r ".[] | select((.prefix | test(\"$1\"; \"i\")) or (.name | test(\"$1\";\"i\"))) | [.prefix, .name] | @tsv" | sort
+rm -f locations.json
