@@ -135,3 +135,5 @@ to get ALL of USA into one file do the following:
 $ **getcsvfilefrompota** K > USA.csv
 
 **NOTE: you need jq to run this utility**
+**NOTE: you also need pcc1, found in this repository**
+
