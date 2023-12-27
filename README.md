@@ -3,13 +3,13 @@ Various POTA Utilities
 
 ## pcc
 
-**Find POTA Country Codes**
+**Find POTA Country Code Prefixes by either name or prefix**
 
 This simple command uses the JSON country codes API to find and list out a country code in question
 It will also, find it by country name, if so desired.
 
 
-### pcc - POTA country code finderhttps://api.pota.app/program/parks/K
+### POTA country code prefix finder Usage
 
 **usage: pcc [ country-code | -n country-name ]**
 
@@ -26,7 +26,7 @@ the output will consist of 3 lines:
 
 **NOTE: this uses the jq utility** - (see https://github.com/jqlang/jq), or just do $ sudo apt install jq
 
-### Examples
+#### Examples
 ```
 $ pcc K
 K
@@ -45,6 +45,33 @@ Japan
 $ pcc -n japa | awk 'NR == 1'
 JA
 ```
+## pcc1
+
+**Find POTA Country Code Prefixes by either name or prefix**
+
+This simple command uses the JSON country codes API to find and list out anything that matches either a country prefix or a name or both.
+
+### POTA country code prefix finder Usage
+
+**usage: pcc1 [ country-code | country-name ]**
+
+**NOTE: this uses the jq utility** - (see https://github.com/jqlang/jq), or just do $ sudo apt install jq
+
+#### Examples
+
+```
+$ pcc1 united
+K - United States of America
+...
+```
+
+```
+$ pcc1 japa
+JA - Japan
+...
+```
+
+**Note: There might be many entries, so you need to choose**
 
 # POTA Spotting
 
