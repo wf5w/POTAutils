@@ -128,13 +128,12 @@ It outputs to:
 
 This script gets a download of entities from a specific country code to a csvfile you choose.
 
-usage: **getcsvfilefrompota** prefix > csvfilename.csv
+usage: **getcsvfilefrompota** [prefix | name] > csvfilename.csv
 
 to get ALL of USA into one file do the following:
 
 $ **getcsvfilefrompota** K > USA.csv
 
-**NOTE: you need jq to run this utility**
+**NOTE: you need jq, fzf and pcc1 to run this utility**
 
-**NOTE: you also need pcc1, found in this repository**
-
+pcc1 is found in this repository, (jq and fzf can be installed on your system, either by building from source, or by using the apt install utility)
