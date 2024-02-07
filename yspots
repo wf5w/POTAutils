@@ -130,9 +130,15 @@ let w=$(($gw - 100))
 txt=( `cat temp.out.txt` )
 
 if [ $vtype = "full" ]; then
-  yad --list --checklist --select-action 'bash -c "do_select %s"' --width ${w} --height ${h} --button="Clear saved Pota Spots":"rm -f $HOME/potaspot.selections" --button="Ok" --buttons-layout=center --escape-ok --center --column Done --column Park --column Activator --column Frequency --column Mode --column Location --column Grid --column @font@ ${txt[@]} > /dev/null 2>&1
+  yad --title "POTA Spots" --list --checklist --select-action 'bash -c "do_select %s"' --width ${w} --height ${h} --posx -1 --posy +0 --fixed --button="Clear saved Pota Spots":"rm -f $HOME/potaspot.selections" --button="Ok" --buttons-layout=center --escape-ok  --column Done --column Park --column Activator --column Frequency --column Mode --column Location --column Grid --column @font@ ${txt[@]} > /dev/null 2>&1
 else
-  yad --list --checklist --select-action 'bash -c "do_select %s"' --geometry='739x980--10+-8' --button="Clear saved Pota Spots":"rm -f $HOME/potaspot.selections" --button="Ok" --buttons-layout=center --escape-ok --center --column Done --column Park --column Activator --column Frequency --column Mode --column Location --column Grid --column @font@ ${txt[@]} > /dev/null 2>&1
+  yad --title "POTA Spots" --list --checklist --select-action 'bash -c "do_select %s"' --width 800 --height 1000 --posx -1 --posy +0 --fixed --button="Clear saved Pota Spots":"rm -f $HOME/potaspot.selections" --button="Ok" --buttons-layout=center --escape-ok --column Done --column Park --column Activator --column Frequency --column Mode --column Location --column Grid --column @font@ ${txt[@]} > /dev/null 2>&1
+fi
+
+if [ $vtype = "full" ]; then
+  yad --title "POTA Spots" --list --checklist --select-action 'bash -c "do_select %s"' --width ${w} --height ${h} --posx -1 --posy +0 --fixed --button="Clear saved Pota Spots":"rm -f $HOME/potaspot.selections" --button="Ok" --buttons-layout=center --escape-ok  --column Done --column Park --column Activator --column Frequency --column Mode --column Location --column Grid --column @font@ ${txt[@]} > /dev/null 2>&1
+else
+  yad --title "POTA Spots" --list --checklist --select-action 'bash -c "do_select %s"' --width 800 --height 1000 --posx -1 --posy +0 --fixed --button="Clear saved Pota Spots":"rm -f $HOME/potaspot.selections" --button="Ok" --buttons-layout=center --escape-ok --column Done --column Park --column Activator --column Frequency --column Mode --column Location --column Grid --column @font@ ${txt[@]} > /dev/null 2>&1
 fi
 
 [ -f "$HOME/potaspot.selections" ] && (echo -e "you chose ( in ~/potaspot.selections ):\n"; cat $HOME/potaspot.selections)
