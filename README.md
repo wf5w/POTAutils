@@ -73,8 +73,9 @@ JA - Japan
 
 **Note: There might be many entries, so you need to choose**
 
-# POTA Spottinge
-##setfreq
+# POTA Spotting
+
+## setfreq
 
 There is a new setfreq python script, which uses xmlrpc to communicate with FLRig over the localhost. It is used now in yspots to set the frequency.
 It has been tested on my FT-710 and works great. As long as cat control works with FLRig to your rig, this should work flawlessly.
