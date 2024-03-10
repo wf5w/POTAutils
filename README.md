@@ -89,7 +89,16 @@ yspots now has a checkbox for each entry. If you check the boxes it will be save
 
 when you invoke yspots again, those spots if they still exist will be selected again. This is so you can know which ones you have contacted. When you are completely done, you can use the clear button at the bottom to clear those selections.
 
-Update: 2023-09-13
+**UPDATE: 2024-03-10**
+
+There is a new companion script, **setfreq**, which will set the frequency of your rig (in KHz), if you use FLRig.
+
+When you now double-click on a row in yspots it will call setfreq and attempt to communicate with FLRig to change the frequency.
+
+Note: This only works with SSB.
+
+
+**UPDATE: 2023-09-13**
 
 yspots now has 2 new command line options
 
