@@ -106,6 +106,8 @@ When you now double-click on a row in yspots it will call setfreq and attempt to
 
 Note: This only works with SSB.
 
+yspots now has a new command line option `-c` which will copy the spot callsign to the clipboard. This required that *xclip* is installed.
+
 
 **UPDATE: 2023-09-13**
 
