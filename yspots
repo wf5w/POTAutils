@@ -16,7 +16,8 @@ fi
 vtype=right
 band=
 mode=
-while getopts ':b:m:fh' OPTION; do
+clip=0
+while getopts ':b:m:fch' OPTION; do
   case "$OPTION" in
     f)
       vtype=full 
@@ -26,6 +27,13 @@ while getopts ':b:m:fh' OPTION; do
       ;;
     m)
       mode=$(echo "$OPTARG" | tr 'a-z' 'A-Z')
+      ;;
+    c)
+      clip=1
+      if [ ! $(which xclip) ]; then
+        echo "you need xclip with -c: do sudo apt install xclip"
+        exit 1
+      fi
       ;;
     h|?)
       echo "Usage: $(basename $0) [-f] [-b band] [-m mode] [-h|-?]"
@@ -40,6 +48,9 @@ function rowdo {
   argument=${4}
   if [ ${5} == "SSB" ]; then
     setfreq $argument
+    if [ ${clip} == "1" ]; then
+      echo -n "${3}" | xclip -selection clipboard
+    fi
   fi
 }
 
@@ -143,9 +154,9 @@ txt=( `cat temp.out.txt` )
 #--select-action='bash -c "do_select %s"' 
 
 if [ $vtype = "full" ]; then
-  yad --title "POTA Spots" --list --checklist --dclick-action='bash -c "rowdo %s"' --select-action='bash -c "do_select %s"' --width ${w} --height ${h} --posx -1 --posy +0 --fixed --button="Clear saved Pota Spots":"rm -f $HOME/potaspot.selections" --button="Ok" --buttons-layout=center --escape-ok  --column Done --column Park --column Activator --column Frequency --column Mode --column Location --column Grid --column @font@ ${txt[@]} > /dev/null 2>&1
+  clip=$clip yad --title "POTA Spots" --list --checklist --dclick-action='bash -c "rowdo %s"' --select-action='bash -c "do_select %s"' --width ${w} --height ${h} --posx -1 --posy +0 --fixed --button="Clear saved Pota Spots":"rm -f $HOME/potaspot.selections" --button="Ok" --buttons-layout=center --escape-ok  --column Done --column Park --column Activator --column Frequency --column Mode --column Location --column Grid --column @font@ ${txt[@]} > /dev/null 2>&1
 else
-  yad --title "POTA Spots" --list --checklist --dclick-action='bash -c "rowdo %s"' --select-action='bash -c "do_select %s"' --width 800 --height 1000 --posx -1 --posy +0 --fixed --button="Clear saved Pota Spots":"rm -f $HOME/potaspot.selections" --button="Ok" --buttons-layout=center --escape-ok --column Done --column Park --column Activator --column Frequency --column Mode --column Location --column Grid --column @font@ ${txt[@]} > /dev/null 2>&1
+  clip=$clip yad --title "POTA Spots" --list --checklist --dclick-action='bash -c "rowdo %s"' --select-action='bash -c "do_select %s"' --width 800 --height 1000 --posx -1 --posy +0 --fixed --button="Clear saved Pota Spots":"rm -f $HOME/potaspot.selections" --button="Ok" --buttons-layout=center --escape-ok --column Done --column Park --column Activator --column Frequency --column Mode --column Location --column Grid --column @font@ ${txt[@]} > /dev/null 2>&1
 fi
 
 [ -f "$HOME/potaspot.selections" ] && (echo -e "you chose ( in ~/potaspot.selections ):\n"; cat $HOME/potaspot.selections)
