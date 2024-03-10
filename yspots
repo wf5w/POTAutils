@@ -36,7 +36,15 @@ done
 
 shift "$(($OPTIND -1))"
 
-function do_select() {
+function rowdo {
+  argument=${4}
+  if [ ${5} == "SSB" ]; then
+    setfreq $argument
+  fi
+}
+
+function do_select {
+  echo in do_select: arguments are: ${@}
   line=${@}
   echo "$1ine" | sed 's/FALSE//g2' | grep -q -i "false"
   err=$?
@@ -47,6 +55,7 @@ function do_select() {
 }
 
 export -f do_select
+export -f rowdo
 
 function b2fr {
   f="$1"
@@ -127,18 +136,16 @@ gh=$(xdpyinfo | grep dimensions | awk '{print $2}' | tr 'x' ' ' | awk '{print $2
 let h=$(($gh - 100))
 let w=$(($gw - 100))
 
+echo "in rowdo yspots"
+
 txt=( `cat temp.out.txt` )
 
-if [ $vtype = "full" ]; then
-  yad --title "POTA Spots" --list --checklist --select-action 'bash -c "do_select %s"' --width ${w} --height ${h} --posx -1 --posy +0 --fixed --button="Clear saved Pota Spots":"rm -f $HOME/potaspot.selections" --button="Ok" --buttons-layout=center --escape-ok  --column Done --column Park --column Activator --column Frequency --column Mode --column Location --column Grid --column @font@ ${txt[@]} > /dev/null 2>&1
-else
-  yad --title "POTA Spots" --list --checklist --select-action 'bash -c "do_select %s"' --width 800 --height 1000 --posx -1 --posy +0 --fixed --button="Clear saved Pota Spots":"rm -f $HOME/potaspot.selections" --button="Ok" --buttons-layout=center --escape-ok --column Done --column Park --column Activator --column Frequency --column Mode --column Location --column Grid --column @font@ ${txt[@]} > /dev/null 2>&1
-fi
+#--select-action='bash -c "do_select %s"' 
 
 if [ $vtype = "full" ]; then
-  yad --title "POTA Spots" --list --checklist --select-action 'bash -c "do_select %s"' --width ${w} --height ${h} --posx -1 --posy +0 --fixed --button="Clear saved Pota Spots":"rm -f $HOME/potaspot.selections" --button="Ok" --buttons-layout=center --escape-ok  --column Done --column Park --column Activator --column Frequency --column Mode --column Location --column Grid --column @font@ ${txt[@]} > /dev/null 2>&1
+  yad --title "POTA Spots" --list --checklist --dclick-action='bash -c "rowdo %s"' --select-action='bash -c "do_select %s"' --width ${w} --height ${h} --posx -1 --posy +0 --fixed --button="Clear saved Pota Spots":"rm -f $HOME/potaspot.selections" --button="Ok" --buttons-layout=center --escape-ok  --column Done --column Park --column Activator --column Frequency --column Mode --column Location --column Grid --column @font@ ${txt[@]} > /dev/null 2>&1
 else
-  yad --title "POTA Spots" --list --checklist --select-action 'bash -c "do_select %s"' --width 800 --height 1000 --posx -1 --posy +0 --fixed --button="Clear saved Pota Spots":"rm -f $HOME/potaspot.selections" --button="Ok" --buttons-layout=center --escape-ok --column Done --column Park --column Activator --column Frequency --column Mode --column Location --column Grid --column @font@ ${txt[@]} > /dev/null 2>&1
+  yad --title "POTA Spots" --list --checklist --dclick-action='bash -c "rowdo %s"' --select-action='bash -c "do_select %s"' --width 800 --height 1000 --posx -1 --posy +0 --fixed --button="Clear saved Pota Spots":"rm -f $HOME/potaspot.selections" --button="Ok" --buttons-layout=center --escape-ok --column Done --column Park --column Activator --column Frequency --column Mode --column Location --column Grid --column @font@ ${txt[@]} > /dev/null 2>&1
 fi
 
 [ -f "$HOME/potaspot.selections" ] && (echo -e "you chose ( in ~/potaspot.selections ):\n"; cat $HOME/potaspot.selections)
@@ -146,3 +153,4 @@ fi
 rm -f temp.out.txt
 rm -f spots.json
 unset -f do_select
+unset -f rowdo
