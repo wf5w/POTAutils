@@ -1,0 +1,42 @@
+#!/usr/bin/env python
+
+import xmlrpc.client
+import sys
+
+# setfreq is a python program to use xmlrpc to FLRig
+# if you have cat control for FLRig then this will work
+# for you.
+
+
+#f = open("setfreq.txt", "a")
+#f.write("\ninsetfreq.txt: " + sys.argv[1] + "\n")
+#f.close
+
+if len(sys.argv) == 1:
+    print('usage: setfreq freq-in-KHz (e.g. 14242)')
+    sys.exit(1)
+
+try:
+    # Connect to the flrig server on localhost port 12345
+    server_url = "http://localhost:12345"
+    flrig = xmlrpc.client.ServerProxy(server_url)
+    version = flrig.main.get_version
+    print("Connected to flrig version:",version())
+
+    # get frequency to set
+    freq = sys.argv[1]
+    freq += '000'
+
+    freq = float(freq)
+
+    flrig.rig.set_vfo(freq)
+    rfreq = flrig.rig.get_vfo()
+
+    if freq < 10000000:
+        flrig.rig.set_mode('LSB')
+    else:
+        flrig.rig.set_mode('USB')
+
+    print("frequency is now: ", str(rfreq), "\n")
+except: 
+    print("cannot connect to FLRig\n")
